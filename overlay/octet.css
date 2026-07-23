@@ -1,0 +1,298 @@
+/* Octet scene styles.
+ *
+ * EVERYTHING visual is a :root custom property below — reskin Octet without
+ * touching JS (octet.js only sets text + classes). Override these in OBS
+ * per-source Custom CSS, edit them here, or replace this file wholesale. See
+ * docs/THEMING.md. The three formats share the palette; format-scoped rules
+ * live under .fmt-bracket / .fmt-grid / .fmt-list.
+ */
+
+:root {
+  /* ── Placement & sizing — move/resize the whole scene to fit a StreamKit ── */
+  --octet-pos-x: 96px;
+  --octet-pos-y: 80px;
+  --octet-stage-w: 1728px;      /* max scene width */
+  --octet-align: flex-start;    /* stage horizontal alignment: flex-start | center */
+
+  /* ── Type ── */
+  --octet-font: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --octet-title-size: 42px;
+  --octet-phase-size: 19px;
+  --octet-name-size: 25px;
+  --octet-place-size: 28px;
+  --octet-score-size: 25px;
+  --octet-label-size: 14px;
+
+  /* ── Palette ── */
+  --octet-panel-bg: rgba(15, 19, 28, 0.82);
+  --octet-row-bg: rgba(31, 39, 54, 0.62);
+  --octet-fg: #eef2f8;
+  --octet-muted: #8b95a9;
+  --octet-edge: rgba(255, 255, 255, 0.09);
+  --octet-radius: 12px;
+  --octet-shadow: 0 12px 34px rgba(0, 0, 0, 0.42);
+
+  /* ── Accents ── */
+  --octet-accent: #f5c451;      /* winner / focus */
+  --octet-gold: #f5c451;
+  --octet-silver: #c9d3df;
+  --octet-bronze: #d78b4d;
+  --octet-live: #ff5470;
+  --octet-final: #52e2a0;
+
+  /* ── Rows / bracket geometry ── */
+  --octet-row-gap: 10px;
+  --octet-set-w: 290px;
+  --octet-set-bg: rgba(23, 29, 42, 0.9);
+  --octet-line: rgba(255, 255, 255, 0.14);
+  --octet-winner-bar: var(--octet-accent);
+  --octet-gap: 16px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: transparent;      /* OBS composites over the scene below */
+  font-family: var(--octet-font);
+  color: var(--octet-fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.octet {
+  position: absolute;
+  left: var(--octet-pos-x);
+  top: var(--octet-pos-y);
+  width: var(--octet-stage-w);
+  max-width: calc(1920px - var(--octet-pos-x) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── Header (shared across formats) ─────────────────────────────────────── */
+.octet-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--octet-edge);
+}
+.octet-titles { min-width: 0; }
+.tourney {
+  margin: 0;
+  font-size: var(--octet-title-size);
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  line-height: 1.05;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.phase {
+  margin-top: 4px;
+  font-size: var(--octet-phase-size);
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--octet-muted);
+}
+.state-tag {
+  flex: none;
+  align-self: center;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  color: #10131a;
+  background: var(--octet-muted);
+}
+.state-tag[hidden] { display: none; }
+.state-tag.is-live {
+  background: var(--octet-live);
+  color: #fff;
+  animation: octet-pulse 1.8s ease-in-out infinite;
+}
+.state-tag.is-final { background: var(--octet-final); color: #06231a; }
+@keyframes octet-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+/* ── Shared cell bits ───────────────────────────────────────────────────── */
+.oc-flag { font-size: 1.05em; line-height: 1; min-width: 1.4em; text-align: center; }
+.oc-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.oc-sponsor { color: var(--octet-muted); font-weight: 600; font-size: 0.72em; letter-spacing: 0.3px; }
+.oc-tag { font-weight: 700; }
+.oc-empty {
+  padding: 40px;
+  font-size: 22px;
+  color: var(--octet-muted);
+  background: var(--octet-panel-bg);
+  border: 1px solid var(--octet-edge);
+  border-radius: var(--octet-radius);
+  box-shadow: var(--octet-shadow);
+}
+.oc-error { color: var(--octet-live); }
+
+.stage { display: flex; justify-content: var(--octet-align); }
+
+/* ── list format ────────────────────────────────────────────────────────── */
+.fmt-list .oc-list {
+  list-style: none;
+  margin: 0;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--octet-row-gap);
+  width: min(620px, 100%);
+  background: var(--octet-panel-bg);
+  border: 1px solid var(--octet-edge);
+  border-radius: var(--octet-radius);
+  box-shadow: var(--octet-shadow);
+}
+.fmt-list .oc-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 12px 18px;
+  background: var(--octet-row-bg);
+  border: 1px solid var(--octet-edge);
+  border-left: 4px solid transparent;
+  border-radius: 10px;
+  font-size: var(--octet-name-size);
+}
+.fmt-list .oc-place {
+  font-weight: 800;
+  font-size: var(--octet-place-size);
+  min-width: 1.6em;
+  text-align: center;
+  color: var(--octet-muted);
+  font-variant-numeric: tabular-nums;
+}
+.fmt-list .oc-name { flex: 1; }
+.fmt-list .oc-place-1 { border-left-color: var(--octet-gold); }
+.fmt-list .oc-place-2 { border-left-color: var(--octet-silver); }
+.fmt-list .oc-place-3 { border-left-color: var(--octet-bronze); }
+.fmt-list .oc-place-1 .oc-place { color: var(--octet-gold); }
+.fmt-list .oc-place-2 .oc-place { color: var(--octet-silver); }
+.fmt-list .oc-place-3 .oc-place { color: var(--octet-bronze); }
+
+/* ── grid format (round robin / pools) ──────────────────────────────────── */
+.fmt-grid .oc-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+.fmt-grid .oc-pool {
+  background: var(--octet-panel-bg);
+  border: 1px solid var(--octet-edge);
+  border-radius: var(--octet-radius);
+  box-shadow: var(--octet-shadow);
+  padding: 14px 16px 8px;
+  min-width: 360px;
+}
+.fmt-grid .oc-pool-label {
+  font-size: var(--octet-label-size);
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--octet-accent);
+  margin-bottom: 10px;
+}
+.fmt-grid .oc-pool-table { width: 100%; border-collapse: collapse; font-size: 21px; }
+.fmt-grid .oc-pool-table td { padding: 9px 8px; border-top: 1px solid var(--octet-edge); }
+.fmt-grid .oc-pool-table tr:first-child td { border-top: none; }
+.fmt-grid .oc-place { font-weight: 800; color: var(--octet-muted); width: 1.6em; text-align: center; font-variant-numeric: tabular-nums; }
+.fmt-grid .oc-flag { width: 1.6em; }
+.fmt-grid .oc-name-cell { width: 100%; }
+.fmt-grid .oc-record { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--octet-fg); }
+.fmt-grid .oc-place-1 .oc-place { color: var(--octet-gold); }
+.fmt-grid .oc-place-2 .oc-place { color: var(--octet-silver); }
+.fmt-grid .oc-place-3 .oc-place { color: var(--octet-bronze); }
+
+/* ── bracket format ─────────────────────────────────────────────────────── */
+.fmt-bracket { width: 100%; }
+.oc-bracket {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "winners gf" "losers gf";
+  gap: 26px 34px;
+  align-items: start;
+  width: 100%;
+}
+.oc-winners { grid-area: winners; }
+.oc-losers { grid-area: losers; }
+.oc-grandfinal { grid-area: gf; align-self: center; }
+
+.oc-side-label {
+  font-size: var(--octet-label-size);
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--octet-muted);
+  margin-bottom: 10px;
+}
+.oc-grandfinal .oc-side-label { color: var(--octet-accent); }
+.oc-cols { display: flex; gap: 28px; align-items: stretch; }
+.oc-col { display: flex; flex-direction: column; min-width: var(--octet-set-w); }
+.oc-round-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--octet-muted);
+  margin-bottom: 8px;
+}
+.oc-col-sets {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: var(--octet-gap);
+  flex: 1;
+}
+
+.oc-set {
+  width: var(--octet-set-w);
+  background: var(--octet-set-bg);
+  border: 1px solid var(--octet-edge);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--octet-shadow);
+}
+.oc-slot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  font-size: var(--octet-name-size);
+  border-left: 4px solid transparent;
+}
+.oc-slot + .oc-slot { border-top: 1px solid var(--octet-edge); }
+.oc-slot .oc-name { flex: 1; }
+.oc-score {
+  font-weight: 800;
+  font-size: var(--octet-score-size);
+  font-variant-numeric: tabular-nums;
+  min-width: 1.2em;
+  text-align: center;
+  color: var(--octet-muted);
+}
+.oc-slot.oc-winner {
+  border-left-color: var(--octet-winner-bar);
+  background: linear-gradient(90deg, rgba(245, 196, 81, 0.14), transparent 60%);
+}
+.oc-slot.oc-winner .oc-tag { color: var(--octet-fg); }
+.oc-slot.oc-winner .oc-score { color: var(--octet-accent); }
+.oc-slot.oc-tbd .oc-tag { color: var(--octet-muted); font-weight: 600; font-style: italic; }
+
+.oc-set.oc-state-in_progress { border-color: var(--octet-live); box-shadow: 0 0 0 1px var(--octet-live), var(--octet-shadow); }
+.oc-set.oc-state-in_progress .oc-score { color: var(--octet-live); }
+.oc-set.oc-state-upcoming { opacity: 0.72; }
+
+/* ── offline (SB disconnected) ──────────────────────────────────────────── */
+body.offline .octet { opacity: 0.55; filter: grayscale(0.4); transition: opacity 0.3s; }

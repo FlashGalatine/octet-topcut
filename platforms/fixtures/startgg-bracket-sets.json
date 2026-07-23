@@ -1,0 +1,74 @@
+[
+  {
+    "id": 900001, "fullRoundText": "Winners Semi-Final", "round": 1, "winnerId": 1,
+    "displayScore": "Flash 3 - Gale 1", "state": 3,
+    "slots": [
+      { "entrant": { "id": 1, "name": "Flash", "participants": [{ "player": { "user": { "location": { "country": "United States" } } } }] }, "standing": { "stats": { "score": { "value": 3 } } } },
+      { "entrant": { "id": 5, "name": "Gale", "participants": [{ "player": { "user": { "location": { "country": "South Korea" } } } }] }, "standing": { "stats": { "score": { "value": 1 } } } }
+    ]
+  },
+  {
+    "id": 900002, "fullRoundText": "Winners Semi-Final", "round": 1, "winnerId": 2,
+    "displayScore": "Sampaguita 3 - Vireo 2", "state": 3,
+    "slots": [
+      { "entrant": { "id": 2, "name": "Sampaguita", "participants": [{ "player": { "user": { "location": { "country": "Philippines" } } } }] }, "standing": { "stats": { "score": { "value": 3 } } } },
+      { "entrant": { "id": 6, "name": "Vireo", "participants": [{ "player": { "user": { "location": { "country": null } } } }] }, "standing": { "stats": { "score": { "value": 2 } } } }
+    ]
+  },
+  {
+    "id": 900003, "fullRoundText": "Winners Final", "round": 2, "winnerId": null,
+    "displayScore": "Flash 1 - Sampaguita 1", "state": 2,
+    "slots": [
+      { "entrant": { "id": 1, "name": "Flash", "participants": [{ "player": { "user": { "location": { "country": "United States" } } } }] }, "standing": { "stats": { "score": { "value": 1 } } } },
+      { "entrant": { "id": 2, "name": "Sampaguita", "participants": [{ "player": { "user": { "location": { "country": "Philippines" } } } }] }, "standing": { "stats": { "score": { "value": 1 } } } }
+    ]
+  },
+  {
+    "id": 900004, "fullRoundText": "Losers Quarter-Final", "round": -2, "winnerId": 3,
+    "displayScore": "Rook 3 - Thorn 0", "state": 3,
+    "slots": [
+      { "entrant": { "id": 3, "name": "Rook", "participants": [{ "player": { "user": { "location": { "country": "Japan" } } } }] }, "standing": { "stats": { "score": { "value": 3 } } } },
+      { "entrant": { "id": 7, "name": "Thorn", "participants": [{ "player": { "user": { "location": { "country": "Canada" } } } }] }, "standing": { "stats": { "score": { "value": 0 } } } }
+    ]
+  },
+  {
+    "id": 900005, "fullRoundText": "Losers Quarter-Final", "round": -2, "winnerId": 4,
+    "displayScore": "Blossom 3 - Petal 2", "state": 3,
+    "slots": [
+      { "entrant": { "id": 4, "name": "Blossom", "participants": [{ "player": { "user": { "location": { "country": null } } } }] }, "standing": { "stats": { "score": { "value": 3 } } } },
+      { "entrant": { "id": 8, "name": "Petal", "participants": [{ "player": { "user": { "location": { "country": null } } } }] }, "standing": { "stats": { "score": { "value": 2 } } } }
+    ]
+  },
+  {
+    "id": 900006, "fullRoundText": "Losers Semi-Final", "round": -3, "winnerId": null,
+    "displayScore": null, "state": 1,
+    "slots": [
+      { "entrant": { "id": 5, "name": "Gale", "participants": [{ "player": { "user": { "location": { "country": "South Korea" } } } }] }, "standing": null },
+      { "entrant": { "id": 3, "name": "Rook", "participants": [{ "player": { "user": { "location": { "country": "Japan" } } } }] }, "standing": null }
+    ]
+  },
+  {
+    "id": 900007, "fullRoundText": "Losers Semi-Final", "round": -3, "winnerId": null,
+    "displayScore": null, "state": 1,
+    "slots": [
+      { "entrant": { "id": 6, "name": "Vireo", "participants": [{ "player": { "user": { "location": { "country": null } } } }] }, "standing": null },
+      { "entrant": { "id": 4, "name": "Blossom", "participants": [{ "player": { "user": { "location": { "country": null } } } }] }, "standing": null }
+    ]
+  },
+  {
+    "id": 900008, "fullRoundText": "Losers Final", "round": -4, "winnerId": null,
+    "displayScore": null, "state": 1,
+    "slots": [
+      { "entrant": null, "standing": null },
+      { "entrant": null, "standing": null }
+    ]
+  },
+  {
+    "id": 900009, "fullRoundText": "Grand Final", "round": 3, "winnerId": null,
+    "displayScore": null, "state": 1,
+    "slots": [
+      { "entrant": null, "standing": null },
+      { "entrant": null, "standing": null }
+    ]
+  }
+]

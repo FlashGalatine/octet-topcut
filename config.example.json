@@ -1,0 +1,9 @@
+{
+  "startggApiKey": null,
+  "tournamentUrl": null,
+  "pollIntervalMs": 30000,
+  "format": "auto",
+  "phaseName": null,
+  "showFlags": true,
+  "autoStart": false
+}

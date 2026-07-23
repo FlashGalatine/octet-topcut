@@ -1,0 +1,61 @@
+{
+  "event": {
+    "id": 999002,
+    "name": "Street Fighter 6",
+    "state": "ACTIVE",
+    "tournament": { "name": "Wednesday Night Fights: Round Robin" },
+    "phases": [
+      { "id": 660001, "name": "Round Robin", "bracketType": "ROUND_ROBIN" }
+    ],
+    "standings": {
+      "nodes": [
+        { "placement": 1, "entrant": { "id": 11, "name": "Aria", "participants": [{ "player": { "user": { "location": { "country": "United States" } } } }] } },
+        { "placement": 2, "entrant": { "id": 15, "name": "Ember", "participants": [{ "player": { "user": { "location": { "country": "Japan" } } } }] } }
+      ]
+    }
+  },
+  "groups": [
+    {
+      "displayIdentifier": "A",
+      "standings": {
+        "nodes": [
+          { "placement": 1, "entrant": { "id": 11, "name": "Aria", "participants": [{ "player": { "user": { "location": { "country": "United States" } } } }] } },
+          { "placement": 2, "entrant": { "id": 12, "name": "Basil", "participants": [{ "player": { "user": { "location": { "country": "Canada" } } } }] } },
+          { "placement": 3, "entrant": { "id": 13, "name": "Cedar", "participants": [{ "player": { "user": { "location": { "country": null } } } }] } },
+          { "placement": 4, "entrant": { "id": 14, "name": "Dahlia", "participants": [{ "player": { "user": { "location": { "country": "Philippines" } } } }] } }
+        ]
+      },
+      "sets": {
+        "nodes": [
+          { "winnerId": 11, "state": 3, "slots": [{ "entrant": { "id": 11 } }, { "entrant": { "id": 12 } }] },
+          { "winnerId": 11, "state": 3, "slots": [{ "entrant": { "id": 11 } }, { "entrant": { "id": 13 } }] },
+          { "winnerId": 11, "state": 3, "slots": [{ "entrant": { "id": 11 } }, { "entrant": { "id": 14 } }] },
+          { "winnerId": 12, "state": 3, "slots": [{ "entrant": { "id": 12 } }, { "entrant": { "id": 13 } }] },
+          { "winnerId": 12, "state": 3, "slots": [{ "entrant": { "id": 12 } }, { "entrant": { "id": 14 } }] },
+          { "winnerId": 13, "state": 3, "slots": [{ "entrant": { "id": 13 } }, { "entrant": { "id": 14 } }] }
+        ]
+      }
+    },
+    {
+      "displayIdentifier": "B",
+      "standings": {
+        "nodes": [
+          { "placement": 1, "entrant": { "id": 15, "name": "Ember", "participants": [{ "player": { "user": { "location": { "country": "Japan" } } } }] } },
+          { "placement": 2, "entrant": { "id": 16, "name": "Fern", "participants": [{ "player": { "user": { "location": { "country": null } } } }] } },
+          { "placement": 3, "entrant": { "id": 17, "name": "Grove", "participants": [{ "player": { "user": { "location": { "country": "South Korea" } } } }] } },
+          { "placement": 4, "entrant": { "id": 18, "name": "Hazel", "participants": [{ "player": { "user": { "location": { "country": null } } } }] } }
+        ]
+      },
+      "sets": {
+        "nodes": [
+          { "winnerId": 15, "state": 3, "slots": [{ "entrant": { "id": 15 } }, { "entrant": { "id": 16 } }] },
+          { "winnerId": 15, "state": 3, "slots": [{ "entrant": { "id": 15 } }, { "entrant": { "id": 17 } }] },
+          { "winnerId": 15, "state": 3, "slots": [{ "entrant": { "id": 15 } }, { "entrant": { "id": 18 } }] },
+          { "winnerId": 16, "state": 3, "slots": [{ "entrant": { "id": 16 } }, { "entrant": { "id": 17 } }] },
+          { "winnerId": 16, "state": 3, "slots": [{ "entrant": { "id": 16 } }, { "entrant": { "id": 18 } }] },
+          { "winnerId": 17, "state": 3, "slots": [{ "entrant": { "id": 17 } }, { "entrant": { "id": 18 } }] }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "id": 999001,
+  "name": "Street Fighter 6",
+  "state": "ACTIVE",
+  "tournament": { "name": "Solution to Sunday 11: Before the Sampaguita Blooms" },
+  "phases": [
+    { "id": 555001, "name": "Pools", "bracketType": "ROUND_ROBIN" },
+    { "id": 555002, "name": "Top 8", "bracketType": "DOUBLE_ELIMINATION" }
+  ],
+  "standings": {
+    "nodes": [
+      { "placement": 1, "entrant": { "id": 1, "name": "Flash", "participants": [{ "player": { "user": { "location": { "country": "United States" } } } }] } },
+      { "placement": 2, "entrant": { "id": 2, "name": "Sampaguita", "participants": [{ "player": { "user": { "location": { "country": "Philippines" } } } }] } },
+      { "placement": 3, "entrant": { "id": 3, "name": "Rook", "participants": [{ "player": { "user": { "location": { "country": "Japan" } } } }] } },
+      { "placement": 3, "entrant": { "id": 4, "name": "Blossom", "participants": [{ "player": { "user": { "location": { "country": null } } } }] } },
+      { "placement": 5, "entrant": { "id": 5, "name": "Gale", "participants": [{ "player": { "user": { "location": { "country": "South Korea" } } } }] } },
+      { "placement": 5, "entrant": { "id": 6, "name": "Vireo", "participants": [{ "player": { "user": { "location": { "country": null } } } }] } },
+      { "placement": 7, "entrant": { "id": 7, "name": "Thorn", "participants": [{ "player": { "user": { "location": { "country": "Canada" } } } }] } },
+      { "placement": 7, "entrant": { "id": 8, "name": "Petal", "participants": [{ "player": { "user": { "location": { "country": null } } } }] } }
+    ]
+  }
+}

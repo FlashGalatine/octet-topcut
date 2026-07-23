@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Octet — control</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { font: 15px/1.5 system-ui, sans-serif; margin: 0; padding: 20px; max-width: 620px; background: #12141a; color: #e9edf3; }
+    h1 { font-size: 1.2rem; margin: 0 0 4px; }
+    .sub { color: #8b95a9; font-size: .85rem; margin-bottom: 16px; }
+    fieldset { border: 1px solid #2a3040; border-radius: 10px; margin: 0 0 14px; padding: 12px 14px; }
+    legend { color: #8b95a9; font-size: .78rem; letter-spacing: 1px; text-transform: uppercase; padding: 0 6px; }
+    label { display: block; font-size: .82rem; color: #b7c0d0; margin-bottom: 4px; }
+    input[type=text], input[type=number], select {
+      width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #333b4d;
+      background: #1b2030; color: #e9edf3; font: inherit;
+    }
+    .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+    .row > * { flex: 1; min-width: 0; }
+    .row .grow2 { flex: 2; }
+    button {
+      padding: 9px 14px; border-radius: 8px; border: 1px solid #3a4560;
+      background: #253049; color: #e9edf3; font: inherit; cursor: pointer; white-space: nowrap;
+    }
+    button:hover { background: #2d3a58; }
+    button.primary { background: #f5c451; color: #14171f; border-color: #f5c451; font-weight: 700; }
+    button.warn { background: #3a2530; border-color: #5a3040; }
+    .checks { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+    .checks label { display: flex; gap: 8px; align-items: center; margin: 0; color: #e9edf3; font-size: .95rem; }
+    .status { font-size: .85rem; color: #b7c0d0; }
+    .status b { color: #e9edf3; }
+    .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .74rem; font-weight: 700; letter-spacing: .5px; }
+    .pill.on { background: #52e2a0; color: #06231a; }
+    .pill.off { background: #55617a; color: #10131a; }
+    .err { color: #ff8095; margin-top: 6px; min-height: 1.1em; }
+    .preview { font-size: .85rem; color: #cfd6e2; background: #171c29; border: 1px solid #2a3040; border-radius: 8px; padding: 10px 12px; }
+    .banner { display: none; background: #4a2030; border: 1px solid #7a3448; color: #ffd7de; padding: 9px 12px; border-radius: 8px; margin-bottom: 14px; font-size: .85rem; }
+    body.no-sidecar .banner { display: block; }
+    .hint { color: #7f8aa0; font-size: .76rem; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Octet — control</h1>
+  <div class="sub">Drives the <b>Octet Command</b> action over Streamer.bot's WebSocket. The sidecar does the fetching.</div>
+
+  <div class="banner" id="banner">Sidecar isn't responding. Start it: <code>npm run sidecar</code> (or the <b>Octet Sidecar Start</b> action). The overlay still shows the last pushed state.</div>
+
+  <fieldset>
+    <legend>Tournament</legend>
+    <label for="url">start.gg tournament or event URL</label>
+    <div class="row">
+      <input type="text" id="url" class="grow2" placeholder="https://www.start.gg/tournament/<t>/event/<e>" autocomplete="off">
+      <button id="setUrl" class="primary">Set</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button id="start">▶ Start polling</button>
+      <button id="stop" class="warn">■ Stop</button>
+      <button id="pollNow">↻ Poll now</button>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Display</legend>
+    <div class="row">
+      <div>
+        <label for="format">Format</label>
+        <select id="format">
+          <option value="auto">Auto (from bracket type)</option>
+          <option value="bracket">Bracket tree</option>
+          <option value="grid">Grid (round robin)</option>
+          <option value="list">Standings list</option>
+        </select>
+      </div>
+      <div>
+        <label for="interval">Poll interval (seconds)</label>
+        <input type="number" id="interval" min="15" max="3600" step="5" value="30">
+      </div>
+    </div>
+    <div class="checks" style="margin-top:12px">
+      <label><input type="checkbox" id="flags" checked> Show country flags</label>
+    </div>
+    <label style="margin-top:12px" for="phase">Phase override (optional — default: final phase)</label>
+    <div class="row">
+      <input type="text" id="phase" class="grow2" placeholder="e.g. Top 8  ·  leave blank for the final phase" autocomplete="off">
+      <button id="setPhase">Apply</button>
+    </div>
+    <div class="hint">Auto picks bracket for elimination, grid for round-robin, list otherwise.</div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Status</legend>
+    <div class="status" id="status">Connecting…</div>
+    <div class="err" id="err"></div>
+    <div class="preview" id="preview" style="margin-top:8px">No payload yet.</div>
+  </fieldset>
+
+  <script>
+  (function () {
+    'use strict';
+    var q = new URLSearchParams(location.search);
+    var WS_URL = window.__SB_WS_URL || (q.get('sbport') ? 'ws://127.0.0.1:' + q.get('sbport') + '/' : 'ws://127.0.0.1:8080/');
+    var CMD_ACTION = 'Octet Command';
+    var SYNC_ACTION = 'Octet Push';
+    var ws = null, id = 0, subId = null, lastStatusAt = 0, startedAt = Date.now();
+
+    function $(x) { return document.getElementById(x); }
+    function focused(el) { return document.activeElement === el; }
+
+    function connect() {
+      ws = new WebSocket(WS_URL);
+      ws.onopen = function () {
+        subId = String(++id);
+        ws.send(JSON.stringify({ request: 'Subscribe', id: subId, events: { general: ['Custom'] } }));
+        setTimeout(function () {
+          doAction(SYNC_ACTION, { reason: 'control-connect' });
+          send('status');
+        }, 150);
+      };
+      ws.onmessage = function (evt) {
+        var m; try { m = JSON.parse(evt.data); } catch (e) { return; }
+        if (!(m && m.event && m.event.source === 'General' && m.event.type === 'Custom')) return;
+        var d = m.data;
+        if (typeof d === 'string') { try { d = JSON.parse(d); } catch (e) { return; } }
+        if (!d || typeof d !== 'object') return;
+        if (d.type === 'octet:command' && d.command === '__status') {
+          var s; try { s = JSON.parse(d.value); } catch (e) { return; }
+          onStatus(s);
+        } else if (d.type === 'octet:update') {
+          onUpdate(d);
+        }
+      };
+      ws.onclose = function () { setTimeout(connect, 2000); };
+      ws.onerror = function () {};
+    }
+
+    function doAction(name, args) {
+      if (!ws || ws.readyState !== 1) return;
+      ws.send(JSON.stringify({ request: 'DoAction', id: String(++id), action: { name: name }, args: args || {} }));
+    }
+    function send(command, value) {
+      var args = { command: command };
+      if (value !== undefined) args.value = value;
+      doAction(CMD_ACTION, args);
+    }
+
+    function onStatus(s) {
+      lastStatusAt = Date.now();
+      document.body.classList.remove('no-sidecar');
+      var on = !!s.polling;
+      $('status').innerHTML =
+        '<span class="pill ' + (on ? 'on' : 'off') + '">' + (on ? 'POLLING' : 'STOPPED') + '</span> ' +
+        'platform <b>' + (s.platform || '—') + '</b> · format <b>' + (s.resolvedFormat || s.format || '—') + '</b>' +
+        (s.phaseName ? ' · phase <b>' + esc(s.phaseName) + '</b>' : '') +
+        (s.lastPollAt ? ' · last poll ' + new Date(s.lastPollAt).toLocaleTimeString() : '');
+      $('err').textContent = s.lastError || '';
+      if (!focused($('url')) && s.url) $('url').value = s.url;
+      if (!focused($('interval')) && s.intervalMs) $('interval').value = Math.round(s.intervalMs / 1000);
+      if (!focused($('format')) && s.format) $('format').value = s.format;
+      if (document.activeElement !== $('flags')) $('flags').checked = s.showFlags !== false;
+    }
+
+    function onUpdate(p) {
+      var champ = (p.standings && p.standings[0]) ? p.standings[0].name : '—';
+      var bits = [
+        'format <b>' + (p.format || '—') + '</b>',
+        (p.tournament && p.tournament.name) ? esc(p.tournament.name) : '(no tournament)',
+        (p.standings ? p.standings.length : 0) + ' placements',
+        (p.sets ? p.sets.length : 0) + ' sets',
+      ];
+      if (p.standings && p.standings.length) bits.push('leader: <b>' + esc(champ) + '</b>');
+      $('preview').innerHTML = bits.join(' · ');
+    }
+
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
+
+    // Wire the controls.
+    $('setUrl').onclick = function () { send('setUrl', $('url').value.trim()); };
+    $('start').onclick = function () { send('start'); };
+    $('stop').onclick = function () { send('stop'); };
+    $('pollNow').onclick = function () { send('pollNow'); };
+    $('format').onchange = function () { send('setFormat', $('format').value); };
+    $('flags').onchange = function () { send('setFlags', $('flags').checked); };
+    $('interval').onchange = function () { send('setInterval', String((parseInt($('interval').value, 10) || 30) * 1000)); };
+    $('setPhase').onclick = function () { send('setPhase', $('phase').value.trim()); };
+
+    // Sidecar heartbeat — poll status; flag the banner if it goes quiet.
+    setInterval(function () { send('status'); }, 4000);
+    // Banner when the sidecar is quiet — whether it went away or was never there
+    // (falls back to page-load time so a missing sidecar surfaces too).
+    setInterval(function () {
+      if (Date.now() - (lastStatusAt || startedAt) > 6000) document.body.classList.add('no-sidecar');
+    }, 1000);
+
+    connect();
+  })();
+  </script>
+</body>
+</html>

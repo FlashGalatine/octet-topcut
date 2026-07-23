@@ -1,0 +1,36 @@
+{
+  "type": "octet:update",
+  "tournament": {
+    "name": "Solution to Sunday 11 — Street Fighter 6",
+    "platform": "startgg",
+    "url": "https://www.start.gg/tournament/solution-to-sunday-11-before-the-sampaguita-blooms/event/street-fighter-6",
+    "state": "in_progress"
+  },
+  "format": "bracket",
+  "phaseName": "Top 8",
+  "bracketType": "DOUBLE_ELIMINATION",
+  "showFlags": true,
+  "generatedAt": "2026-07-22T20:15:00.000Z",
+  "standings": [
+    { "placement": 1, "name": "Flash", "flag": "🇺🇸" },
+    { "placement": 2, "name": "Sampaguita", "flag": "🇵🇭" },
+    { "placement": 3, "name": "Rook", "flag": "🇯🇵" },
+    { "placement": 3, "name": "Blossom", "flag": null },
+    { "placement": 5, "name": "Gale", "flag": "🇰🇷" },
+    { "placement": 5, "name": "Vireo", "flag": null },
+    { "placement": 7, "name": "Thorn", "flag": "🇨🇦" },
+    { "placement": 7, "name": "Petal", "flag": null }
+  ],
+  "sets": [
+    { "id": "900001", "roundText": "Winners Semi-Final", "round": 1, "state": "completed", "winner": 1, "p1": { "name": "Flash", "score": 3, "flag": "🇺🇸" }, "p2": { "name": "Gale", "score": 1, "flag": "🇰🇷" } },
+    { "id": "900002", "roundText": "Winners Semi-Final", "round": 1, "state": "completed", "winner": 1, "p1": { "name": "Sampaguita", "score": 3, "flag": "🇵🇭" }, "p2": { "name": "Vireo", "score": 2, "flag": null } },
+    { "id": "900003", "roundText": "Winners Final", "round": 2, "state": "in_progress", "winner": 0, "p1": { "name": "Flash", "score": 1, "flag": "🇺🇸" }, "p2": { "name": "Sampaguita", "score": 1, "flag": "🇵🇭" } },
+    { "id": "900004", "roundText": "Losers Quarter-Final", "round": -2, "state": "completed", "winner": 1, "p1": { "name": "Rook", "score": 3, "flag": "🇯🇵" }, "p2": { "name": "Thorn", "score": 0, "flag": "🇨🇦" } },
+    { "id": "900005", "roundText": "Losers Quarter-Final", "round": -2, "state": "completed", "winner": 1, "p1": { "name": "Blossom", "score": 3, "flag": null }, "p2": { "name": "Petal", "score": 2, "flag": null } },
+    { "id": "900006", "roundText": "Losers Semi-Final", "round": -3, "state": "upcoming", "winner": 0, "p1": { "name": "Gale", "score": null, "flag": "🇰🇷" }, "p2": { "name": "Rook", "score": null, "flag": "🇯🇵" } },
+    { "id": "900007", "roundText": "Losers Semi-Final", "round": -3, "state": "upcoming", "winner": 0, "p1": { "name": "Vireo", "score": null, "flag": null }, "p2": { "name": "Blossom", "score": null, "flag": null } },
+    { "id": "900008", "roundText": "Losers Final", "round": -4, "state": "upcoming", "winner": 0, "p1": { "name": "TBD", "score": null, "flag": null }, "p2": { "name": "TBD", "score": null, "flag": null } },
+    { "id": "900009", "roundText": "Grand Final", "round": 3, "state": "upcoming", "winner": 0, "p1": { "name": "TBD", "score": null, "flag": null }, "p2": { "name": "TBD", "score": null, "flag": null } }
+  ],
+  "groups": []
+}

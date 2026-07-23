@@ -1,0 +1,21 @@
+{
+  "name": "octet-topcut",
+  "version": "0.1.0",
+  "description": "Octet — a format-agnostic Top-8 / top-cut tournament scene for OBS, driven by Streamer.bot",
+  "type": "module",
+  "license": "MIT",
+  "author": "Ashe \"Flash\" Galatine <AsheJunius@gmail.com>",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node mock-sb-server.mjs",
+    "sidecar": "node octet-sidecar.mjs",
+    "verify": "node verify.mjs",
+    "verify:render": "node verify-render.mjs",
+    "shots": "node tools/shots.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

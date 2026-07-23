@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920, initial-scale=1">
+  <title>Octet — Top 8</title>
+  <link rel="stylesheet" href="octet.css">
+</head>
+<body>
+  <!-- The whole scene. #stage is repainted by the active format renderer; the
+       header is format-agnostic and updated by octet.js. Reskin entirely in
+       octet.css (the :root custom properties) — see docs/THEMING.md. -->
+  <section class="octet" id="octet">
+    <header class="octet-head">
+      <div class="octet-titles">
+        <h1 class="tourney" id="tourney"></h1>
+        <div class="phase" id="phase"></div>
+      </div>
+      <span class="state-tag" id="state" hidden></span>
+    </header>
+    <main class="stage" id="stage"></main>
+  </section>
+
+  <!-- Transport first (classic script, opens the SB WebSocket), then the scene
+       module (imports the format renderers). -->
+  <script>window.__SB_SYNC_ACTION = 'Octet Push';</script>
+  <script src="../octet-shared/panel-core.js"></script>
+  <script type="module" src="octet.js"></script>
+</body>
+</html>
