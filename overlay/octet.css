@@ -216,14 +216,17 @@ html, body {
 .fmt-grid .oc-place-3 .oc-place { color: var(--octet-bronze); }
 
 /* ── bracket format ─────────────────────────────────────────────────────── */
-.fmt-bracket { width: 100%; }
+/* Center the whole bracket in the stage (override the shared left align). */
+.fmt-bracket { width: 100%; justify-content: center; }
 .oc-bracket {
   display: grid;
-  grid-template-columns: 1fr auto;
+  /* Both columns size to content so the Grand Final hugs the tree instead of
+     being pushed to the far edge; `width:auto` lets the grid center as a block. */
+  grid-template-columns: auto auto;
   grid-template-areas: "winners gf" "losers gf";
   gap: 26px 34px;
   align-items: start;
-  width: 100%;
+  width: auto;
 }
 .oc-winners { grid-area: winners; }
 .oc-losers { grid-area: losers; }
