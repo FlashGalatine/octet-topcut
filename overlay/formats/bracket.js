@@ -36,6 +36,21 @@ function colEl(label, sets, showFlags) {
   return col;
 }
 
+// Trim a side's sets to the top cut. When an event's final phase IS the whole
+// bracket (no dedicated "Top 8" phase), start.gg hands us every round; keep only
+// the last `n` rounds so the tree stays a Top 8 (last 2 winners rounds = Semi +
+// Winners Final; last 3 losers rounds = Quarter/Semi/Losers Final). A phase that
+// is already a top cut has ≤ n rounds and is returned untouched. Grand Final is
+// filtered out before this and always kept by the caller.
+function keepLastRounds(sets, n, byMagnitude) {
+  if (sets.length <= 1) return sets;
+  const rounds = [...new Set(sets.map((s) => s.round))];
+  if (rounds.length <= n) return sets;
+  rounds.sort((a, b) => (byMagnitude ? Math.abs(a) - Math.abs(b) : a - b));
+  const keep = new Set(rounds.slice(-n));
+  return sets.filter((s) => keep.has(s.round));
+}
+
 function columnsByRound(sets, order) {
   const map = new Map();
   for (const s of sets) {
@@ -65,9 +80,16 @@ export function render(stage, model) {
   }
 
   const isGF = (s) => /grand final/i.test(s.roundText || '');
-  const winners = sets.filter((s) => s.round > 0 && !isGF(s));
-  const losers = sets.filter((s) => s.round < 0 && !isGF(s));
+  let winners = sets.filter((s) => s.round > 0 && !isGF(s));
+  let losers = sets.filter((s) => s.round < 0 && !isGF(s));
   const grandFinal = sets.filter(isGF).sort((a, b) => a.round - b.round);
+
+  // Top-cut slice: keep only the Top 8's rounds when handed a full bracket.
+  // Double-elim → last 2 winners + last 3 losers rounds; single-elim (no losers)
+  // → last 3 winners rounds (Quarter/Semi/Final). Grand Final always kept above.
+  const singleElim = losers.length === 0;
+  winners = keepLastRounds(winners, singleElim ? 3 : 2, false);
+  if (!singleElim) losers = keepLastRounds(losers, 3, true);
 
   const bracket = el('div', 'oc-bracket');
 
