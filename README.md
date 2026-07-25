@@ -38,6 +38,15 @@ paint the sample Top 8. This is the theme/dev loop — no SB, no OBS needed.
 
 ## Streamer.bot setup (live)
 
+Requires Node ≥ 18 and Streamer.bot ≥ 1.0.4. First, get the code onto the machine
+that runs Streamer.bot — either
+
+```
+git clone https://github.com/FlashGalatine/octet-topcut.git
+```
+
+or click **<> Code → Download ZIP** on the repo page and extract it.
+
 1. **WebSocket Server** — SB → Servers/Clients → *WebSocket Server* → enable on
    `127.0.0.1:8080`, **authentication OFF** (required).
 2. **HTTP Server** — enable on `127.0.0.1:7474` and add two **Path → Folder** maps:
@@ -107,9 +116,22 @@ npm run shots             # regenerate docs/*.png
 node tools/live-check.mjs "https://www.start.gg/tournament/<t>/event/<e>"   # live model dump
 ```
 
-## License
+## Author & support
 
-MIT — see [LICENSE](LICENSE). Author: Ashe "Flash" Galatine. Third-party notices in
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Talks to third-party services over
-their public endpoints; respect each service's terms and keep the poll interval
+Built by **Ashe "Flash" Galatine**.
+
+- Email — [AsheJunius@gmail.com](mailto:AsheJunius@gmail.com)
+- X — [@AsheJunius](https://x.com/AsheJunius) · BlueSky — [@projectgalatine.com](https://bsky.app/profile/projectgalatine.com)
+- Twitch — [FlashGalatine](https://www.twitch.tv/FlashGalatine) · Discord — [Project Galatine](https://discord.gg/K6pRfSvu2Q)
+- Support — Patreon [ProjectGalatine](https://www.patreon.com/ProjectGalatine) · CashApp [$ProjectGalatine](https://cash.app/$ProjectGalatine)
+
+## Credits & license
+
+MIT — see [LICENSE](LICENSE). The start.gg client is adapted from the sibling
+[Zipper](https://github.com/FlashGalatine/zipper-ticker) ticker (same author, MIT); the
+panel-core transport and country-flag table come from
+[Tally](https://github.com/FlashGalatine/tally-scorebug) / StreamScoreboard. Sole runtime
+dependency is [ws](https://github.com/websockets/ws) (MIT); `playwright-core` is dev-only.
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Talks to tournament services over
+their public endpoints — respect each service's terms and keep the poll interval
 reasonable (floored at 15 s).
