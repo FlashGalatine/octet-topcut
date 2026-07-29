@@ -7,6 +7,7 @@
 //
 // Sections: [1] normalizers  [2] format registry  [3] provider detection/stubs
 //           [4] HTTP maps  [5] panel-core transport  [6] sidecar E2E
+//           [7] auto-scheduling (stop on completed / wait for start)
 
 import { spawn } from 'node:child_process';
 import { readFile, writeFile, rm } from 'node:fs/promises';
@@ -106,6 +107,9 @@ function startMock() {
 async function main() {
   let mock = null, sidecar = null, client = null;
   const tmpConfig = join(tmpdir(), `octet-verify-config-${process.pid}.json`);
+  const doneFix = join(tmpdir(), `octet-verify-done-${process.pid}.json`);
+  const upFix = join(tmpdir(), `octet-verify-up-${process.pid}.json`);
+  const soonFix = join(tmpdir(), `octet-verify-soon-${process.pid}.json`);
 
   try {
     // ── [1] Normalizers ────────────────────────────────────────────────────
@@ -144,6 +148,8 @@ async function main() {
     check('mapBracketType single-elim→bracket', mapBracketType('SINGLE_ELIMINATION') === 'bracket');
     check('state: CREATED→upcoming', normalizeStartggTopCut({ event: { state: 'CREATED', standings: { nodes: [] } }, targetPhase: null, format: 'list', sets: [], groups: [] }).state === 'upcoming');
     check('state: numeric 3→completed', normalizeStartggTopCut({ event: { state: 3, standings: { nodes: [] } }, targetPhase: null, format: 'list', sets: [], groups: [] }).state === 'completed');
+    check('startAt: epoch seconds→ISO', normalizeStartggTopCut({ event: { state: 'CREATED', startAt: 1754006400, standings: { nodes: [] } }, targetPhase: null, format: 'list', sets: [], groups: [] }).startAt === new Date(1754006400 * 1000).toISOString());
+    check('startAt: missing→null', normalizeStartggTopCut({ event: { state: 'CREATED', standings: { nodes: [] } }, targetPhase: null, format: 'list', sets: [], groups: [] }).startAt === null);
 
     // ── [2] Format registry ────────────────────────────────────────────────
     console.log('\n[2] format registry');
@@ -250,6 +256,90 @@ async function main() {
     await sleep(300); // let the sidecar's async persist() finish before we read it
     const persisted = JSON.parse(await readFile(tmpConfig, 'utf-8'));
     check('config persisted (url + autoStart false)', persisted.tournamentUrl === 'stub:platforms/fixtures/stub-result.json' && persisted.autoStart === false && persisted.showFlags === false);
+
+    // ── [7] auto-scheduling ────────────────────────────────────────────────
+    console.log('\n[7] auto-scheduling');
+    // client.next()/status() scan the WHOLE event log, so predicates that also
+    // match earlier statuses resolve instantly on history. These tests scan
+    // only the events that arrived after a recorded mark.
+    const isStatus = (d) => d.type === 'octet:command' && d.command === '__status';
+    const statusOf = (d) => { try { return JSON.parse(d.value); } catch { return null; } };
+    const mark = () => client.events.length;
+    const since = async (at, pred, ms = 6000) => {
+      for (let i = 0; i * 100 < ms; i++) {
+        const hit = client.events.slice(at).filter(pred).pop();
+        if (hit) return hit;
+        await sleep(100);
+      }
+      return null;
+    };
+
+    // A poll that returns `completed` pushes the final payload, then stops
+    // polling by itself.
+    await writeFile(doneFix, JSON.stringify({
+      tournamentName: 'Done Cup', state: 'completed', format: 'list', bracketType: null, phaseName: null,
+      standings: [{ placement: 1, name: 'Flash', flag: null }, { placement: 2, name: 'Gale', flag: null }],
+      sets: [], groups: [],
+    }), 'utf-8');
+    client.command('setUrl', `stub:${doneFix}`);
+    const atDone = mark();
+    client.command('start');
+    const evDone = await since(atDone, (d) => isStatus(d) && statusOf(d)?.auto?.stopped === 'completed');
+    const sDone = evDone && statusOf(evDone);
+    check('completed event auto-stops polling', !!sDone && sDone.polling === false && sDone.auto.eventState === 'completed');
+    const updDone = await since(atDone, (d) => d.type === 'octet:update' && d.tournament?.state === 'completed', 2000);
+    check('final payload still pushed before the auto-stop', !!updDone);
+
+    // A poll that returns `upcoming` sleeps until the platform's start time.
+    const upStartAt = new Date(Date.now() + 90000).toISOString();
+    await writeFile(upFix, JSON.stringify({
+      tournamentName: 'Tomorrow Cup', state: 'upcoming', startAt: upStartAt, format: 'list',
+      bracketType: null, phaseName: null, standings: [], sets: [], groups: [],
+    }), 'utf-8');
+    client.command('setUrl', `stub:${upFix}`);
+    const atUp = mark();
+    client.command('start');
+    const evWait = await since(atUp, (d) => isStatus(d) && !!statusOf(d)?.auto?.waitingUntil);
+    const sWait = evWait && statusOf(evWait);
+    check('upcoming event waits for the start time',
+      !!sWait && sWait.polling === true && sWait.auto.eventState === 'upcoming'
+        && Math.abs(Date.parse(sWait.auto.waitingUntil) - Date.parse(upStartAt)) < 5000);
+
+    // …and resumes by itself once the start time arrives and the event is live.
+    await writeFile(soonFix, JSON.stringify({
+      tournamentName: 'Soon Cup', state: 'upcoming', startAt: new Date(Date.now() + 1500).toISOString(),
+      format: 'list', bracketType: null, phaseName: null, standings: [], sets: [], groups: [],
+    }), 'utf-8');
+    client.command('setUrl', `stub:${soonFix}`);
+    const atSoon = mark();
+    client.command('start');
+    await since(atSoon, (d) => isStatus(d) && !!statusOf(d)?.auto?.waitingUntil);
+    // The event "goes live" while the sidecar sleeps; the wake-up poll at the
+    // start time must pick it up and resume the normal cadence.
+    await writeFile(soonFix, JSON.stringify({
+      tournamentName: 'Soon Cup', state: 'in_progress', format: 'list', bracketType: null, phaseName: null,
+      standings: [{ placement: 1, name: 'Flash', flag: null }], sets: [], groups: [],
+    }), 'utf-8');
+    const evLive = await since(atSoon, (d) => isStatus(d) && statusOf(d)?.auto?.eventState === 'in_progress', 8000);
+    const sLiveAuto = evLive && statusOf(evLive);
+    check('polling resumes when the start time arrives', !!sLiveAuto && sLiveAuto.polling === true && !sLiveAuto.auto.waitingUntil);
+
+    // setAutoSchedule off → a completed event keeps polling (manual mode).
+    const atAutoOff = mark();
+    client.command('setAutoSchedule', 'off');
+    await since(atAutoOff, (d) => isStatus(d) && statusOf(d)?.auto?.enabled === false, 4000);
+    client.command('setUrl', `stub:${doneFix}`);
+    const atManual = mark();
+    client.command('start');
+    const evManual = await since(atManual, (d) => isStatus(d) && statusOf(d)?.auto?.eventState === 'completed' && !!statusOf(d)?.lastPollAt);
+    const sManual = evManual && statusOf(evManual);
+    check('setAutoSchedule off keeps polling a completed event', !!sManual && sManual.polling === true && sManual.auto.stopped === null);
+    const atStop = mark();
+    client.command('stop');
+    await since(atStop, (d) => isStatus(d) && statusOf(d)?.polling === false, 4000);
+    await sleep(300);
+    const persistedAuto = JSON.parse(await readFile(tmpConfig, 'utf-8'));
+    check('autoSchedule persisted', persistedAuto.autoSchedule === false);
   } catch (err) {
     fail++;
     console.log(`  ✘ unexpected error — ${err && err.stack ? err.stack : err}`);
@@ -258,6 +348,9 @@ async function main() {
     try { sidecar && sidecar.kill(); } catch {}
     try { mock && mock.kill(); } catch {}
     try { await rm(tmpConfig, { force: true }); } catch {}
+    try { await rm(doneFix, { force: true }); } catch {}
+    try { await rm(upFix, { force: true }); } catch {}
+    try { await rm(soonFix, { force: true }); } catch {}
   }
 
   console.log(`\n${fail === 0 ? 'ALL GREEN' : 'FAILURES'} — ${pass} passed, ${fail} failed`);

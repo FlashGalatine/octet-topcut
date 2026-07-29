@@ -79,6 +79,7 @@ Relayed by `Octet Command`. The control page/Stream Deck send
 | `setFormat` | `auto` \| `bracket` \| `grid` \| `list` | force/auto the display format (re-fetches) |
 | `setPhase` | phase name (blank = final phase) | override which phase is the top cut |
 | `setFlags` | `on`/`off`/`true`/`false` | show/hide country flags (re-pushes instantly) |
+| `setAutoSchedule` | `on`/`off` (default on) | auto start/stop: a poll that returns `completed` pushes the final payload then **stops polling**; one that returns `upcoming` **sleeps until the event's start time** (re-checking every 5 min without one, and at most every 6 h for far-off dates) and resumes normal polling when the event goes live. `start`/`pollNow` always force a fresh poll regardless. |
 | `status` | — | request an `octet:status` snapshot |
 
 **Chat trigger gotcha:** an SB chat Command trigger injects its own
@@ -94,8 +95,18 @@ its own echo.
 ```jsonc
 { "type": "octet:status", "polling": true, "url": "…", "platform": "startgg",
   "format": "auto", "resolvedFormat": "bracket", "phaseName": "Top 8",
-  "showFlags": true, "lastPollAt": "…", "lastError": "", "intervalMs": 30000 }
+  "showFlags": true, "lastPollAt": "…", "lastError": "", "intervalMs": 30000,
+  "auto": { "enabled": true, "eventState": "upcoming",
+    "startAt": "2026-08-01T00:00:00.000Z", "waitingUntil": "2026-08-01T00:00:00.000Z",
+    "stopped": null } }
 ```
+
+The `auto` block describes the auto-scheduler (see `setAutoSchedule` above):
+`eventState`/`startAt` are what the last successful poll said about the event
+(`startAt` is `null` when the platform has no date), `waitingUntil` is set while
+polling is on but sleeping for the start time (the next poll fires at that
+instant), and `stopped` is `"completed"` after the scheduler stopped polling
+itself, `null` otherwise.
 
 ## `octet:error`
 
@@ -108,7 +119,8 @@ Every provider's `fetchTopCut(id, config, url)` resolves to this shape; the side
 wraps it into `octet:update` (adding `tournament`, `showFlags`, `generatedAt`):
 
 ```jsonc
-{ "tournamentName": "…", "state": "in_progress", "format": "bracket",
+{ "tournamentName": "…", "state": "in_progress", "startAt": "2026-08-01T00:00:00.000Z",
+  "format": "bracket",
   "bracketType": "DOUBLE_ELIMINATION", "phaseName": "Top 8",
   "standings": [ { "placement", "name", "flag" } ],
   "sets":      [ { "id", "roundText", "round", "state", "winner", "p1", "p2" } ],

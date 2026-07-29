@@ -52,6 +52,7 @@ query OctetEventPhases($slug: String!, $standingsPerPage: Int = 8) {
     id
     name
     state
+    startAt
     tournament { name }
     phases { id name bracketType }
     standings(query: { perPage: $standingsPerPage, page: 1 }) {
@@ -311,9 +312,13 @@ export function normalizeStartggTopCut(input) {
   const { event, targetPhase, bracketType, format, sets, groups } = input || {};
   const tourneyName = String(event?.tournament?.name || '').trim();
   const eventName = String(event?.name || '').trim();
+  // event.startAt is epoch SECONDS (may be null on undated events) — feeds the
+  // sidecar's wait-for-start auto-scheduling.
+  const startEpoch = Number(event?.startAt);
   return {
     tournamentName: tourneyName && eventName ? `${tourneyName} — ${eventName}` : (tourneyName || eventName),
     state: mapState(event?.state),
+    startAt: Number.isFinite(startEpoch) && startEpoch > 0 ? new Date(startEpoch * 1000).toISOString() : null,
     format: format || 'list',
     bracketType: bracketType || null,
     phaseName: targetPhase?.name ? String(targetPhase.name).trim() : null,

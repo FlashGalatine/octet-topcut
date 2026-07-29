@@ -91,11 +91,21 @@ Octet targets the **final phase** (the top cut) automatically; override with
 `phaseName`. `roundone` / `tourneybot` are declared stubs; Challonge and Matcherino
 are planned drop-ins — see [docs/THEMING.md](docs/THEMING.md#3-add-a-provider).
 
+## Auto start/stop
+
+On by default (the checkbox next to the polling buttons; `autoSchedule` in
+`config.json`): start polling any time — before the event begins the sidecar
+just sleeps until the start.gg start time (re-checking every 5 minutes if there
+isn't one), and once the event completes it pushes the final top cut and stops
+polling by itself. The results stay on the overlay. **Start polling** /
+**Poll now** always force a fresh poll regardless; from chat:
+`!octet setAutoSchedule off`.
+
 ## Chat commands (optional)
 
 Attach chat Command triggers to **Octet Command** (no Set Argument needed):
 `!octet setUrl <url>`, `!octet start|stop|pollNow`, `!octet setFormat bracket|grid|list`,
-`!octet setFlags off`.
+`!octet setFlags off`, `!octet setAutoSchedule off`.
 
 ## Ports
 

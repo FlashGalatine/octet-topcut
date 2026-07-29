@@ -56,7 +56,10 @@
       <button id="start">▶ Start polling</button>
       <button id="stop" class="warn">■ Stop</button>
       <button id="pollNow">↻ Poll now</button>
+      <label style="align-self:center"><input type="checkbox" id="autosched" checked> Auto start/stop</label>
     </div>
+    <div class="hint">Auto start/stop saves API calls: before the event it sleeps until the start.gg
+      start time, and once the event completes it stops polling by itself (the final top cut stays up).</div>
   </fieldset>
 
   <fieldset>
@@ -147,8 +150,18 @@
       lastStatusAt = Date.now();
       document.body.classList.remove('no-sidecar');
       var on = !!s.polling;
+      // Auto-scheduling shows as a third polling state: WAITING while sleeping
+      // for the start time, and an explanation when it stopped itself.
+      var auto = s.auto || {};
+      var waiting = on && auto.waitingUntil;
+      var pill = waiting
+        ? '<span class="pill on">WAITING</span> next poll ' + new Date(auto.waitingUntil).toLocaleTimeString() +
+          (auto.startAt ? ' (starts ' + esc(new Date(auto.startAt).toLocaleString()) + ')' : '') + ' ·'
+        : on ? '<span class="pill on">POLLING</span>'
+        : auto.stopped === 'completed' ? '<span class="pill off">STOPPED</span> event complete ·'
+        : '<span class="pill off">STOPPED</span>';
       $('status').innerHTML =
-        '<span class="pill ' + (on ? 'on' : 'off') + '">' + (on ? 'POLLING' : 'STOPPED') + '</span> ' +
+        pill + ' ' +
         'platform <b>' + (s.platform || '—') + '</b> · format <b>' + (s.resolvedFormat || s.format || '—') + '</b>' +
         (s.phaseName ? ' · phase <b>' + esc(s.phaseName) + '</b>' : '') +
         (s.lastPollAt ? ' · last poll ' + new Date(s.lastPollAt).toLocaleTimeString() : '');
@@ -157,6 +170,7 @@
       if (!focused($('interval')) && s.intervalMs) $('interval').value = Math.round(s.intervalMs / 1000);
       if (!focused($('format')) && s.format) $('format').value = s.format;
       if (document.activeElement !== $('flags')) $('flags').checked = s.showFlags !== false;
+      if (s.auto && document.activeElement !== $('autosched')) $('autosched').checked = !!auto.enabled;
     }
 
     function onUpdate(p) {
@@ -180,6 +194,7 @@
     $('pollNow').onclick = function () { send('pollNow'); };
     $('format').onchange = function () { send('setFormat', $('format').value); };
     $('flags').onchange = function () { send('setFlags', $('flags').checked); };
+    $('autosched').onchange = function () { send('setAutoSchedule', $('autosched').checked); };
     $('interval').onchange = function () { send('setInterval', String((parseInt($('interval').value, 10) || 30) * 1000)); };
     $('setPhase').onclick = function () { send('setPhase', $('phase').value.trim()); };
 
