@@ -1,14 +1,14 @@
 # Changelog
 
 All notable changes to **Octet** are recorded here. The format follows
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project aims to
-follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the patch number
+tracks the repository's commit count at release time.
 
-Nothing has been tagged since the initial release, so every change that landed
-afterwards sits under **Unreleased**. Commit hashes and landing dates are noted
-for traceability.
+Nothing was tagged between the initial release and 1.0.6, so that release
+collects every change in between. Commit hashes and landing dates are noted for
+traceability.
 
-## [Unreleased]
+## [1.0.6] — 2026-07-29
 
 ### Added
 
@@ -70,4 +70,4 @@ Verified: `verify` 51/51, `verify:render` 13/13. Live-validated end to end
 against Evo 2024 and Solution to Sunday 11 through the full sidecar → SB →
 overlay chain.
 
-[Unreleased]: https://github.com/FlashGalatine/octet-topcut/compare/97913c1...main
+[1.0.6]: https://github.com/FlashGalatine/octet-topcut/compare/97913c1...main

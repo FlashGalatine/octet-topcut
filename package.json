@@ -1,6 +1,6 @@
 {
   "name": "octet-topcut",
-  "version": "0.1.0",
+  "version": "1.0.6",
   "description": "Octet — a format-agnostic Top-8 / top-cut tournament scene for OBS, driven by Streamer.bot",
   "type": "module",
   "license": "MIT",
